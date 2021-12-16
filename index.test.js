@@ -21,7 +21,7 @@ test("docker login", async () => {
   await docker.dockerLogin(username, password, registryUri);
 });
 
-jest.setTimeout(10000);
+jest.setTimeout(30000);
 test("docker build", async () => {
   await docker.dockerBuild("test:latest", "./.tests/Dockerfile");
 });
