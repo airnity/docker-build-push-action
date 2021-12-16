@@ -9,17 +9,24 @@ on:
 jobs:
   # unit tests
   units:
-    runs-on: ubuntu-latest
+    runs-on:
+    - self-hosted
     steps:
     - uses: actions/checkout@v2
+    - uses: actions/setup-node@v2
+      with:
+        node-version: '12'
     - run: npm ci
     - run: npm test
 
   # test action works running from the graph
   test:
-    runs-on: ubuntu-latest
+    runs-on:
+    - self-hosted
     steps:
     - uses: actions/checkout@v2
     - uses: ./
       with:
-        milliseconds: 1000
+        image-name: test
+        image-tag: v1.0.0
+        dockerfile-path: ./.tests/Dockerfile

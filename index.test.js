@@ -1,24 +1,33 @@
-const wait = require('./wait');
-const process = require('process');
-const cp = require('child_process');
-const path = require('path');
+const aws = require("./aws");
+const docker = require("./docker");
+const process = require("process");
+const cp = require("child_process");
+const path = require("path");
 
-test('throws invalid number', async () => {
-  await expect(wait('foo')).rejects.toThrow('milliseconds not a number');
+test("ecr getToken fake region throw err", async () => {
+  await expect(aws.getAuthToken("fake-region")).rejects.toThrow(
+    "Inaccessible host: `api.ecr.fake-region.amazonaws.com' at port `undefined'. This service may not be available in the `fake-region' region."
+  );
 });
 
-test('wait 500 ms', async () => {
-  const start = new Date();
-  await wait(500);
-  const end = new Date();
-  var delta = Math.abs(end - start);
-  expect(delta).toBeGreaterThanOrEqual(500);
+test("ecr getToken ok", async () => {
+  await aws.getAuthToken("eu-west-1");
 });
 
-// shows how the runner will run a javascript action with env / stdout protocol
-test('test runs', () => {
-  process.env['INPUT_MILLISECONDS'] = 100;
-  const ip = path.join(__dirname, 'index.js');
-  const result = cp.execSync(`node ${ip}`, {env: process.env}).toString();
-  console.log(result);
-})
+test("docker login", async () => {
+  const { username, password, registryUri } = await aws.getAuthToken(
+    "eu-west-1"
+  );
+  await docker.dockerLogin(username, password, registryUri);
+});
+
+jest.setTimeout(10000);
+test("docker build", async () => {
+  await docker.dockerBuild("test:latest", "./.tests/Dockerfile");
+});
+
+test("test injection", async () => {
+  await expect(
+    docker.dockerBuild("test:latest", "./.tests/Dockerfile", ". ; touch toto")
+  ).rejects.toThrow();
+});

@@ -1,18 +1,37 @@
-const core = require('@actions/core');
-const wait = require('./wait');
-
-
+const core = require("@actions/core");
+const { getAuthToken } = require("./aws");
+const { dockerLogin, dockerBuild, dockerPush } = require("./docker");
 // most @actions toolkit packages have async methods
 async function run() {
   try {
-    const ms = core.getInput('milliseconds');
-    core.info(`Waiting ${ms} milliseconds ...`);
+    const imageName = core.getInput("image-name");
+    const imageTag = core.getInput("image-tag");
+    const dockerfilePath = core.getInput("dockerfile-path", {
+      required: false,
+    });
+    const contextPath = core.getInput("context-path", { required: false });
+    const push = core.getBooleanInput("push", { required: false });
+    const region = core.getInput("ecr-region", { required: false });
 
-    core.debug((new Date()).toTimeString()); // debug is only output if you set the secret `ACTIONS_RUNNER_DEBUG` to true
-    await wait(parseInt(ms));
-    core.info((new Date()).toTimeString());
+    if (push) {
+      // Build with registry name in front
+      const imageFullname = `${registryUri}/${imageName}:${imageTag}`;
+      await dockerBuild(imageFullname, dockerfilePath, contextPath);
 
-    core.setOutput('time', new Date().toTimeString());
+      const { username, password, registryUri } = await getAuthToken(region);
+      dockerLogin(username, password, registryUri, false);
+
+      await dockerPush(imageFullname);
+
+      core.setOutput("registry", registryUri);
+      core.setOutput("image-fullname", imageFullname);
+    } else {
+      // Build without registry name in front
+      const imageFullname = `${imageName}:${imageTag}`;
+      await dockerBuild(imageFullname, dockerfilePath, contextPath);
+
+      core.setOutput("image-fullname", imageFullname);
+    }
   } catch (error) {
     core.setFailed(error.message);
   }

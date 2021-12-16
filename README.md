@@ -43,14 +43,54 @@ Your action is now published! :rocket:
 
 See the [versioning documentation](https://github.com/actions/toolkit/blob/master/docs/action-versioning.md)
 
+## Inputs
+
+### `image-name`
+
+**Required** The short name of the image (without tag, or registry).
+
+### `image-tag`
+
+**Required** The version tag of the image.
+
+### `dockerfile-path`
+
+The path where to find the dockerfile (default: `./Dockerfile`).
+
+### `context-path`
+
+The path where to run the `docker build` command.
+
+### `push`
+
+If `True` image will be push to ECR in the `ecr-region` defined, in the AWS account the runner is deployed in.
+
+### `ecr-region`
+
+The AWS ECR region to push the image in.
+**Required** if push is `True`
+
+## Outputs
+
+### `registry`
+
+The name of the registry where image has been pushed.
+
+### `image-fullname`
+
+The full name of the image with registry and tag.
+
 ## Usage
 
 You can now consume the action by referencing the v1 branch
 
 ```yaml
-uses: actions/javascript-action@v1
+uses: airnity/docker-build-push-action@v1
 with:
-  milliseconds: 1000
+  image-name: my-image # Required
+  image-tag: v1.1.0 # Required
+  dockerfile-path: ./images/Dockerfile
+  context-path: ./build/
 ```
 
 See the [actions tab](https://github.com/actions/javascript-action/actions) for runs of this action! :rocket:
