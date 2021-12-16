@@ -14,12 +14,12 @@ async function run() {
     const region = core.getInput("ecr-region", { required: false });
 
     if (push) {
+      const { username, password, registryUri } = await getAuthToken(region);
+      dockerLogin(username, password, registryUri, false);
+
       // Build with registry name in front
       const imageFullname = `${registryUri}/${imageName}:${imageTag}`;
       await dockerBuild(imageFullname, dockerfilePath, contextPath);
-
-      const { username, password, registryUri } = await getAuthToken(region);
-      dockerLogin(username, password, registryUri, false);
 
       await dockerPush(imageFullname);
 
