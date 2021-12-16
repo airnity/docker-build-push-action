@@ -1,8 +1,5 @@
 const aws = require("./aws");
 const docker = require("./docker");
-const process = require("process");
-const cp = require("child_process");
-const path = require("path");
 
 test("ecr getToken fake region throw err", async () => {
   await expect(aws.getAuthToken("fake-region")).rejects.toThrow(
