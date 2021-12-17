@@ -4,32 +4,40 @@ const { dockerLogin, dockerBuild, dockerPush } = require("./docker");
 // most @actions toolkit packages have async methods
 async function run() {
   try {
-    const imageName = core.getInput("image-name");
-    const imageTag = core.getInput("image-tag");
-    const dockerfilePath = core.getInput("dockerfile-path", {
+    const inputImageName = core.getInput("image-name");
+    const inputImageTag = core.getInput("image-tag");
+    const inputDockerfilePath = core.getInput("dockerfile-path", {
       required: false,
     });
-    const contextPath = core.getInput("context-path", { required: false });
-    const push = core.getBooleanInput("push", { required: false });
-    const region = core.getInput("ecr-region", { required: false });
+    const inputContextPath = core.getInput("context-path", { required: false });
+    const inputPush = core.getBooleanInput("push", { required: false });
+    const inputRegion = core.getInput("ecr-region", { required: false });
 
-    if (push) {
-      const { username, password, registryUri } = await getAuthToken(region);
+    if (inputPush) {
+      const { username, password, registryUri } = await getAuthToken(
+        inputRegion
+      );
       dockerLogin(username, password, registryUri, false);
 
       // Build with registry name in front
-      const imageFullname = `${registryUri}/${imageName}:${imageTag}`;
-      await dockerBuild(imageFullname, dockerfilePath, contextPath);
+      const imageName = `${registryUri}/${inputImageName}`;
+      const imageFullname = `${imageName}:${inputImageTag}`;
+      await dockerBuild(imageFullname, inputDockerfilePath, inputContextPath);
 
       await dockerPush(imageFullname);
 
       core.setOutput("registry", registryUri);
+      core.setOutput("image-name", imageName);
+      core.setOutput("image-tag", inputImageTag);
       core.setOutput("image-fullname", imageFullname);
     } else {
       // Build without registry name in front
-      const imageFullname = `${imageName}:${imageTag}`;
-      await dockerBuild(imageFullname, dockerfilePath, contextPath);
+      const imageName = `${inputImageName}`;
+      const imageFullname = `${imageName}:${inputImageTag}`;
+      await dockerBuild(imageFullname, inputDockerfilePath, inputContextPath);
 
+      core.setOutput("image-name", imageName);
+      core.setOutput("image-tag", inputImageTag);
       core.setOutput("image-fullname", imageFullname);
     }
   } catch (error) {
