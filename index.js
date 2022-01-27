@@ -17,7 +17,7 @@ async function run() {
       const { username, password, registryUri } = await getAuthToken(
         inputRegion
       );
-      dockerLogin(username, password, registryUri, false);
+      await dockerLogin(username, password, registryUri, false);
 
       // Build with registry name in front
       const imageName = `${registryUri}/${inputImageName}`;
