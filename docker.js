@@ -4,12 +4,31 @@ const exec = require("@actions/exec");
 const dockerLogin = async function (username, password, registryUri) {
   core.info(`Login to registry ${registryUri}`);
 
-  const options = { silent: true };
-  await exec.exec(
+  let doLoginStdout = "";
+  let doLoginStderr = "";
+  const options = {
+    silent: true,
+    ignoreReturnCode: true,
+    listeners: {
+      stdout: (data) => {
+        doLoginStdout += data.toString();
+      },
+      stderr: (data) => {
+        doLoginStderr += data.toString();
+      },
+    },
+  };
+  const exitCode = await exec.exec(
     "docker",
     ["login", "-u", username, "-p", password, registryUri],
     options
   );
+
+  if (exitCode != 0) {
+    core.debug(doLoginStdout);
+    throw new Error("Could not login: " + doLoginStderr);
+  }
+  core.info(doLoginStdout);
   return registryUri;
 };
 
