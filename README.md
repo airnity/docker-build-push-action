@@ -70,6 +70,10 @@ If `True` image will be push to ECR in the `ecr-region` defined, in the AWS acco
 The AWS ECR region to push the image in.
 **Required** if push is `True`
 
+### `latest`
+
+Wether to also tag image as latest or not.
+
 ## Outputs
 
 ### `registry`

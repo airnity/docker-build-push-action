@@ -1,38 +1,42 @@
-name: 'Wait'
-description: 'Wait a designated number of milliseconds'
+name: "Wait"
+description: "Wait a designated number of milliseconds"
 inputs:
   image-name:
-    description: 'Short name of the image (without the registry name)'
+    description: "Short name of the image (without the registry name)"
     required: true
   image-tag:
-    description: 'Version tag of the image'
+    description: "Version tag of the image"
     required: true
   dockerfile-path:
-    description: 'Path to the Dockerfile'
+    description: "Path to the Dockerfile"
     required: false
     default: "Dockerfile"
   context-path:
-    description: 'Path where to run docker build'
+    description: "Path where to run docker build"
     required: false
     default: "."
   push:
-    description: 'Wether to push image or not'
+    description: "Wether to push image or not"
     required: false
     default: "False"
   ecr-region:
-    description: 'AWS ECR region to login to'
+    description: "AWS ECR region to login to"
     required: false
     default: ""
+  latest:
+    description: "Wether to also tag image as latest or not"
+    required: false
+    default: "False"
 
 outputs:
   registry:
-    description: 'The registry where the image has been pushed'
+    description: "The registry where the image has been pushed"
   image-name:
-    description: 'The name of the image with registry prefix if push is enabled, but without the version tag'
+    description: "The name of the image with registry prefix if push is enabled, but without the version tag"
   image-tag:
-    description: 'The version tag of the image'
+    description: "The version tag of the image"
   image-fullname:
-    description: 'The full name of the image with registry, name and tag'
+    description: "The full name of the image with registry, name and tag"
 runs:
-  using: 'node12'
-  main: 'dist/index.js'
+  using: "node12"
+  main: "dist/index.js"

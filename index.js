@@ -1,6 +1,6 @@
 const core = require("@actions/core");
 const { getAuthToken } = require("./aws");
-const { dockerLogin, dockerBuild, dockerPush } = require("./docker");
+const { dockerLogin, dockerBuild, dockerPush, dockerTag } = require("./docker");
 // most @actions toolkit packages have async methods
 async function run() {
   try {
@@ -12,6 +12,7 @@ async function run() {
     const inputContextPath = core.getInput("context-path", { required: false });
     const inputPush = core.getBooleanInput("push", { required: false });
     const inputRegion = core.getInput("ecr-region", { required: false });
+    const inputLatest = core.getBooleanInput("latest", { required: false });
 
     if (inputPush) {
       const { username, password, registryUri } = await getAuthToken(
@@ -24,7 +25,12 @@ async function run() {
       const imageFullname = `${imageName}:${inputImageTag}`;
       await dockerBuild(imageFullname, inputDockerfilePath, inputContextPath);
 
-      await dockerPush(imageFullname);
+      await dockerPush(imageName, inputImageTag);
+
+      if (inputLatest) {
+        await dockerTag(imageName, inputImageTag, "latest");
+        await dockerPush(imageName, "latest");
+      }
 
       core.setOutput("registry", registryUri);
       core.setOutput("image-name", imageName);

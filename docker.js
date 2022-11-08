@@ -66,10 +66,19 @@ const dockerBuild = async function (
   if (error) throw error;
 };
 
-const dockerPush = async function (imageFullName) {
-  await exec.exec("docker", ["push", imageFullName]);
+const dockerTag = async function (imageName, sourceTag, targetTag) {
+  await exec.exec("docker", [
+    "tag",
+    `${imageName}:${sourceTag}`,
+    `${imageName}:${targetTag}`,
+  ]);
+};
+
+const dockerPush = async function (imageName, imageTag) {
+  await exec.exec("docker", ["push", `${imageName}:${imageTag}`]);
 };
 
 exports.dockerLogin = dockerLogin;
 exports.dockerBuild = dockerBuild;
 exports.dockerPush = dockerPush;
+exports.dockerTag = dockerTag;
