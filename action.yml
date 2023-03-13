@@ -27,6 +27,10 @@ inputs:
     description: "Wether to also tag image as latest or not"
     required: false
     default: "False"
+  args:
+    description: "Comma separated list of arguments to pass to docker build"
+    required: false
+    default: ""
 
 outputs:
   registry:

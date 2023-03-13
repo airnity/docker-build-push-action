@@ -74,6 +74,10 @@ The AWS ECR region to push the image in.
 
 Wether to also tag image as latest or not.
 
+### `args`
+
+A comma separated list of docker build args
+
 ## Outputs
 
 ### `registry`
@@ -95,6 +99,7 @@ with:
   image-tag: v1.1.0 # Required
   dockerfile-path: ./images/Dockerfile
   context-path: ./build/
+  args: ELEMENT=icscf,ENV=prod
 ```
 
 See the [actions tab](https://github.com/actions/javascript-action/actions) for runs of this action! :rocket:
