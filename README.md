@@ -74,6 +74,10 @@ The AWS ECR region to push the image in.
 
 Wether to also tag image as latest or not.
 
+### `args`
+
+A comma separated list of docker build args
+
 ## Outputs
 
 ### `registry`

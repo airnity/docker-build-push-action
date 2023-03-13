@@ -13,6 +13,12 @@ async function run() {
     const inputPush = core.getBooleanInput("push", { required: false });
     const inputRegion = core.getInput("ecr-region", { required: false });
     const inputLatest = core.getBooleanInput("latest", { required: false });
+    const args = core.getInput("args", { required: false });
+    let argsArray = [];
+
+    if (args) {
+      argsArray = args.split(",");
+    }
 
     if (inputPush) {
       const { username, password, registryUri } = await getAuthToken(
@@ -23,7 +29,12 @@ async function run() {
       // Build with registry name in front
       const imageName = `${registryUri}/${inputImageName}`;
       const imageFullname = `${imageName}:${inputImageTag}`;
-      await dockerBuild(imageFullname, inputDockerfilePath, inputContextPath);
+      await dockerBuild(
+        imageFullname,
+        inputDockerfilePath,
+        inputContextPath,
+        argsArray
+      );
 
       await dockerPush(imageName, inputImageTag);
 
@@ -40,7 +51,12 @@ async function run() {
       // Build without registry name in front
       const imageName = `${inputImageName}`;
       const imageFullname = `${imageName}:${inputImageTag}`;
-      await dockerBuild(imageFullname, inputDockerfilePath, inputContextPath);
+      await dockerBuild(
+        imageFullname,
+        inputDockerfilePath,
+        inputContextPath,
+        argsArray
+      );
 
       core.setOutput("image-name", imageName);
       core.setOutput("image-tag", inputImageTag);

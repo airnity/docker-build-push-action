@@ -35,7 +35,8 @@ const dockerLogin = async function (username, password, registryUri) {
 const dockerBuild = async function (
   imageFullName,
   dockerFilePath,
-  contextPath
+  contextPath,
+  argsArray
 ) {
   if (!dockerFilePath) dockerFilePath = "Dockerfile";
   if (!contextPath) contextPath = ".";
@@ -54,14 +55,25 @@ const dockerBuild = async function (
     },
   };
 
-  await exec.exec("docker", [
-    "build",
+  let commandArgs = ["build"];
+  if (argsArray) {
+    for (let i = 0; i < argsArray.length; i++) {
+      commandArgs.push("--build-arg");
+      commandArgs.push(argsArray[i]);
+    }
+  }
+
+  commandArgs = commandArgs.concat([
     "-f",
     dockerFilePath,
     "-t",
     imageFullName,
     contextPath,
   ]);
+
+  core.info("Running: docker " + commandArgs.join(" "));
+
+  await exec.exec("docker", commandArgs);
   core.info(out);
   if (error) throw error;
 };
